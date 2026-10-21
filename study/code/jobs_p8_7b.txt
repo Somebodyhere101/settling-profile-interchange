@@ -1,0 +1,4 @@
+# paper 8, Qwen2.5-7B-Instruct: queue ONLY if the 1.7B verdict is H-REDERIVE or H-NONLINEAR (PREDICTIONS.md section 6)
+paper8 :: set MAX_ROWS=96&& set P6_MEM_FRACTION=0.85&& python run8.py settle q25-7b selftest > logs\settle_q25-7b_selftest.log 2>&1 && python run8.py settle q25-7b clean > logs\settle_q25-7b_clean.log 2>&1 && python run8.py settle q25-7b push > logs\settle_q25-7b_push.log 2>&1
+paper8 :: set MAX_ROWS=96&& set P6_MEM_FRACTION=0.85&& python run8.py flip q25-7b selftest > logs\flip_q25-7b_selftest.log 2>&1 && python run8.py flip q25-7b clean > logs\flip_q25-7b_clean.log 2>&1 && python run8.py flip q25-7b push > logs\flip_q25-7b_push.log 2>&1
+paper8 :: python analyze8.py q25-7b > logs\analyze_q25-7b.log 2>&1

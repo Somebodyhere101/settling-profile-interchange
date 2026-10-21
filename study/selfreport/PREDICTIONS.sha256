@@ -1,0 +1,11 @@
+# Paper 8 self-report arm freeze, 2026-10-20T09:16:48+04:00 (laptop clock). Written before any kill-check or self-report data on arm-S2 items.
+4058dab458ba8f9b8cde0a8db0851a03bb3b065da262871b24d5ca7b1ce1cf33 *PREDICTIONS.md
+7ca3d19918d0e0f275685a2f79685ce0c2b3044c6952923d8d9b26dfe5e93088 *srlib.py
+1b9fbd9f12229cadef67cb3f0635cf6db7e0dbf227efe088a8e09e3e69016307 *run_sr.py
+94f0e1a47b580306dbadc59523a50d2e2d53041586eb9164f97eac005c469fe3 *analyze_sr.py
+2b0905c08956f6dd7aa80a28201d3726f64493daa7c0c6287905a9b781e1afa8 *res/tuned_lens.pt
+56687fbdf90a14717e830a5397fb9f368d8c0d731f2bba0abec1ead5e4c47d2d *res/tuned_lens_report.json
+acad2bb134a7e8b370026c372bd31baf9b58c358571bccfe0a8cfa47b21649ff *../patch2/res/pairs2.json
+98b1d2b87c0e7b6338b75f79076ec0a093f7303091563cc6ebaefa95c61f44db *../patch2/patchlib2.py
+08fa4938dab9079c45703c6ddedbf9d1ec7ec6594ec46014abee144dcc2fefe1 *../patch/patchlib.py
+9d6f2021ea5b46a1558c2abc812da29e4e2842bc1968a85da48ce3180b304ba3 *../patch/res/pool_clean.jsonl

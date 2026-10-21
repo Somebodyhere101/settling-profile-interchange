@@ -1,0 +1,6 @@
+[["patch2", ["run_patch2.py", "selftest"], "s2_selftest.log"],
+ ["selfreport2", ["run_sr2.py", "formatcheck"], "sr2_formatcheck.log"],
+ ["selfreport2", ["run_sr2.py", "selftest"], "sr2_selftest.log"],
+ ["selfreport", ["run_sr.py", "fitlens"], "fitlens.log"],
+ ["selfreport", ["run_sr.py", "selftest"], "kill_selftest.log"],
+ ["lens", ["run_lens.py", "items"], "lens_items.log"]]

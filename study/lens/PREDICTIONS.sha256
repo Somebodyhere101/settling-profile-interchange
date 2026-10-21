@@ -1,0 +1,9 @@
+# Paper 8 lens-robustness arm freeze, 2026-10-20T12:55:44+04:00 (laptop clock). Before any lens-arm measurement except the 3-item selftest disclosed in PREDICTIONS.md.
+37dda767064ff72b26978499aae8c4c92fe40eb8c1b73047089d92d245e82c8f *PREDICTIONS.md
+ecef8e30199c98ba4b82e9fdd2ee060b64623bd8e86da2fd6e4deb5557e26e8c *run_lens.py
+d2242280c1dac5cc0df2153b3ab5d1185257895521309856d88adee7dbd6818c *analyze_lens.py
+a900cd4fa24928939794ea598a54855e42e3e35c8854b849caacefe220da9e2b *res/items.json
+7ca3d19918d0e0f275685a2f79685ce0c2b3044c6952923d8d9b26dfe5e93088 *../selfreport/srlib.py
+2b0905c08956f6dd7aa80a28201d3726f64493daa7c0c6287905a9b781e1afa8 *../selfreport/res/tuned_lens.pt
+9d6f2021ea5b46a1558c2abc812da29e4e2842bc1968a85da48ce3180b304ba3 *../patch/res/pool_clean.jsonl
+acad2bb134a7e8b370026c372bd31baf9b58c358571bccfe0a8cfa47b21649ff *../patch2/res/pairs2.json

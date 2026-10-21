@@ -1,0 +1,7 @@
+# Paper 8 input-proxy arm freeze, 2026-10-20T14:48:36+04:00 (laptop clock). Before any target or probe value on base items.
+ca361f3506775601b48e4a43d1050ef9ed15b527087916dab25122fc06edf781 *PREDICTIONS.md
+81b43b983cb14e074a7dd92e18cf6f1edf0b380cccd84a255697ccc8023ed2bd *run_ip.py
+56386dddc42d6f7d90fb2d9aab31f32bed1bfe087dd78373f401a0aecfff8afe *analyze_ip.py
+be4d47bb16d54b230be0ef799e39cb8367de2d7b33fd3ec37f05bb55e1925a4e *res/items.json
+7ca3d19918d0e0f275685a2f79685ce0c2b3044c6952923d8d9b26dfe5e93088 *../selfreport/srlib.py
+9d6f2021ea5b46a1558c2abc812da29e4e2842bc1968a85da48ce3180b304ba3 *../patch/res/pool_clean.jsonl

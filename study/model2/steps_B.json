@@ -1,0 +1,9 @@
+[["patch2", ["run_patch2.py", "patchS2"], "s2_run.log"],
+ ["patch2", ["analyze_patch2.py"], "s2_analyze.log"],
+ ["selfreport", ["run_sr.py", "kill"], "kill_run.log"],
+ ["selfreport", ["analyze_sr.py", "kill"], "kill_analyze.log"],
+ ["selfreport2", ["run_sr2.py", "sr2"], "sr2_run.log"],
+ ["selfreport2", ["analyze_sr2.py"], "sr2_analyze.log"],
+ ["lens", ["run_lens.py", "selftest"], "lens_selftest.log"],
+ ["lens", ["run_lens.py", "run"], "lens_run.log"],
+ ["lens", ["analyze_lens.py"], "lens_analyze.log"]]

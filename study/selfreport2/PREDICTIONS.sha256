@@ -1,0 +1,9 @@
+# Paper 8 self-report arm 2 freeze, 2026-10-20T12:23:11+04:00 (laptop clock). Written before any arm-2 data on arm-S2 items.
+b22c4016e5f6200deaf3f7bd76186135153ac024818c04f3a3f52469cc9331c7 *PREDICTIONS.md
+42b10a2f135b789557fa6cf4d5dbb66ef7d40ba7dfb2e6e69621b4a2c2c79e71 *run_sr2.py
+9402a860afaf655437014a579bcac794cf57a2a64a54793d2ba942ddf6cd7a43 *analyze_sr2.py
+7ca3d19918d0e0f275685a2f79685ce0c2b3044c6952923d8d9b26dfe5e93088 *../selfreport/srlib.py
+acad2bb134a7e8b370026c372bd31baf9b58c358571bccfe0a8cfa47b21649ff *../patch2/res/pairs2.json
+98b1d2b87c0e7b6338b75f79076ec0a093f7303091563cc6ebaefa95c61f44db *../patch2/patchlib2.py
+08fa4938dab9079c45703c6ddedbf9d1ec7ec6594ec46014abee144dcc2fefe1 *../patch/patchlib.py
+9d6f2021ea5b46a1558c2abc812da29e4e2842bc1968a85da48ce3180b304ba3 *../patch/res/pool_clean.jsonl

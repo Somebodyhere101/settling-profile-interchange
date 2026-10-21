@@ -1,0 +1,4 @@
+# paper 8 pilot (Qwen3-1.7B): engine self-test, then clean and push per target; analysis last. ~1.5-3 GPU h.
+paper8 :: set P6_MEM_FRACTION=0.85&& python run8.py settle q3-1.7b selftest > logs\settle_q3-1.7b_selftest.log 2>&1 && python run8.py settle q3-1.7b clean > logs\settle_q3-1.7b_clean.log 2>&1 && python run8.py settle q3-1.7b push > logs\settle_q3-1.7b_push.log 2>&1
+paper8 :: set P6_MEM_FRACTION=0.85&& python run8.py flip q3-1.7b selftest > logs\flip_q3-1.7b_selftest.log 2>&1 && python run8.py flip q3-1.7b clean > logs\flip_q3-1.7b_clean.log 2>&1 && python run8.py flip q3-1.7b push > logs\flip_q3-1.7b_push.log 2>&1
+paper8 :: python analyze8.py q3-1.7b > logs\analyze_q3-1.7b.log 2>&1

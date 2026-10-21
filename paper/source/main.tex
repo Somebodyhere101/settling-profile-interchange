@@ -1,0 +1,355 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[round]{natbib}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{titling}
+
+\setlength{\droptitle}{-1cm}
+\pretitle{\begin{center}\Large\bfseries}
+\posttitle{\end{center}\vspace{0.3cm}}
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=blue!50!black, urlcolor=blue!50!black}
+\setlist{itemsep=2pt,topsep=3pt}
+\newcommand{\verdict}[1]{\textsc{\MakeLowercase{#1}}}
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{#1}}}
+
+\title{Where a Logit-Lens Settling Profile Is Carried, and Whether Qwen3-1.7B Reports It:\\ Answer-Fixed Interchange in Two Small Language Models}
+
+\author{
+  Sam Ramdan\\
+  Independent Researcher\\
+  \texttt{sr4729820@gmail.com}
+}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Linear probes often read a "process" variable from a language model's prompt, yet pushing along the probe direction rarely changes it. We ask where such a variable is carried, whether the model reports it, and how much of it is the lens. The variable is the logit-lens settling profile: the layer from which each answer digit's logit-lens prediction stays fixed, in Qwen3-1.7B multiplying two-digit numbers with the answer prefilled. Each arm was preregistered; post hoc analyses are marked. (1) In an exploratory pilot (verdict uninformative), oracle pushes at the question tokens never moved settling depth (0 of 36 cells), and pushes from the reading position onward moved it only at block 14, in the wrong direction. (2) In whole-state interchange between same-answer items, patching only the generated answer positions at block 21 transfers the donor's later-digit depth (tau = 0.91, 95% CI [0.81, 1.04]) with the answer unchanged in 98% of rows, but not at block 14 (0.17). Because 99% of these digits settle above block 21, at the patched positions, this shows that blocks 22-28 carry the block-21 state forward without being reset by the prompt, partly by construction. Swapping the reading position's whole state does nothing. (3) In Qwen3-1.7B, neither of two self-reports follows the patched answer-position state (tau = 0.00), while each is moved by a different prompt-side swap of donor operands; writing donor states into the report turn transfers the report (tau = 0.99). (4) Settling depth is reliable across paraphrases (rho >= 0.88) but correlates only rho = 0.26 [0.20, 0.32] with a lens-free causal arrival layer, and the manipulated early-late grouping is not shown to differ in arrival. (5) In SmolLM2-1.7B the location result replicates at block 18 (tau = 0.79); its self-report test is not evaluable. (6) A test of whether the variable is an input proxy was underpowered.
+\end{abstract}
+
+\section{Introduction}
+
+In earlier papers of this series, directions and probes read a process variable from the prompt, but pushing along them did not move it \citep{ramdan2026crv2,ramdan2026battery}. In \citet{ramdan2026battery}, an oracle direction built from each process target read it at the published layer in 17 of 19 runs, yet its one-gap push moved it in none. At four or eight gaps, settling depth and chain-of-thought necessity moved in 1 of the 8 evaluable runs; backtracking was pushed only to two gaps. A gap between reading a variable and pushing it has also been reported in other recent studies \citep{xun2026lagged,galeone2026perfect}. It raises three questions that a probe cannot answer.
+
+\begin{enumerate}
+\item \textbf{Where is the variable carried?} If not where it is read, then where, and from which layer?
+\item \textbf{Does the model report it?} A report counts as introspective only if it carries information that a third party could not read from the input \citep{song2025privileged,singh2026reality}. Most tests inject artificial concepts \citep{lindsey2025emergent,ferrara2026owmi,lederman2026contentagnostic}. Here we manipulate a naturally occurring variable while holding the input's answer and the output tokens fixed.
+\item \textbf{How much of it is the lens?}
+\end{enumerate}
+
+\paragraph{Setting and scope.} We study one setting closely. Qwen3-1.7B \citep{yang2025qwen3} multiplies two two-digit numbers with its answer prefilled. The variable is the logit-lens settling profile of the answer digits \citep{nostalgebraist2020logitlens}, the measure used in \citet{ramdan2026crv2} and \citet{ramdan2026battery}. Every arm was preregistered: its decision rules were frozen with SHA-256 hashes before its data existed, and deviations were logged. Interim looks and post hoc analyses are marked as such.
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item \textbf{Location.} Answer-fixed whole-state interchange between same-product items shows how the settling profile is carried.
+  \begin{itemize}
+  \item At blocks 7 and 14 it is carried by the prompt, and only partly (below the smallest effect of interest) by the region from the reading position through the prefill.
+  \item At block 21 (block 18 in SmolLM2-1.7B; \citealp{allal2025smollm2}) the generated answer positions carry it forward, and attention to the prompt does not reset it.
+  \item Paper~6's read site is causally inert \citep{ramdan2026battery}.
+  \end{itemize}
+\item \textbf{Self-report under interchange, in Qwen3-1.7B.} With the answer fixed, two kinds of report do not follow the patched answer-position state. Each is moved by one of two prompt-side swaps that carry donor operands.
+\item \textbf{Measurement validity.} Logit-lens settling is reliable but only loosely tied to a lens-free causal arrival layer. The early--late contrast we manipulate is not shown to differ in causal arrival in Qwen3-1.7B. It does differ, below the smallest effect of interest, in SmolLM2.
+\end{itemize}
+
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Reading versus using.}
+\begin{itemize}
+\item \textbf{Decodable is not used.} Decodable information need not be used \citep{elazar2020amnesic}. Decodability and causal effect dissociate across positions and layers in counting vision transformers \citep{huang2025causality}. Where causal tracing localises a fact is not where editing works best \citep{hase2023localization}.
+\item \textbf{Readable is not causal.} Readability can precede causal relevance \citep{xun2026lagged}, and detection and control directions can be nearly orthogonal \citep{galeone2026perfect}.
+\item \textbf{Our version} is a dissociation between paper~6's read site and the sites where interchange moves the variable.
+\item \textbf{A competing explanation.} Activation plateaus in Qwen3-1.7B \citep{ferreiradasilva2026error} could make small pushes look inert. Our inertness claim at the reading position, however, rests on whole-state swaps, the largest perturbation possible at a site.
+\end{itemize}
+
+\paragraph{Locating information flow.} Causal tracing \citep{meng2022locating} and attribute-extraction analyses \citep{geva2023dissecting} locate factual recall at subject tokens and in the attention that reads them, and \citet{stolfo2023mechanistic} trace where arithmetic results are computed. We hold the \emph{result} fixed and ask where a property of how it is reached is carried. The tool is clean-to-clean interchange between same-answer items \citep{geiger2021inducing}, with in-distribution sources as \citet{zhang2023best} recommend. Swapping whole states avoids the subspace illusion of \citet{makelov2023subspace} at the cost of specificity.
+
+\paragraph{Introspection and self-report.}
+\begin{itemize}
+\item \textbf{Detection of injected concepts.} \citet{lindsey2025emergent} and \citet{macar2026mechanisms} study detection of injected concepts. Detection can be content-agnostic \citep{lederman2026contentagnostic} or driven by a global yes-bias \citep{hahami2025detecting,ramdan2026injected}.
+\item \textbf{Untrained reports.} Across eight open models and about 78,000 measurements, untrained reports of injected interventions are at chance while probes read them \citep{ferrara2026owmi}. That null is far broader than ours, which covers one model.
+\item \textbf{Privileged access.} A report must beat third-party access to the input \citep{song2025privileged,singh2026reality}, and apparent self-control vanishes once the target cannot be inferred from the prompt \citep{aoki2026neurofeedback}.
+\item \textbf{Trained reporting channels.} Such channels can be non-causal, following the prompt rather than the edited state \citep{hatua2026verbalization}. Other work trains self-prediction or self-explanation \citep{binder2024looking,li2025training,guo2026introspective}.
+\item \textbf{Arithmetic self-explanation.} In a frontier model, the account a model gives of how it adds numbers differs from its internal mechanism \citep{lindsey2025biology}.
+\item \textbf{Faithfulness of stated reasoning} is tested by intervention in \citet{lanham2023measuring}.
+\end{itemize}
+Injection studies also hold the input fixed. What is specific here is that the donor states are on-distribution states of another item with the same answer, and that the answer tokens are held fixed. The claim is correspondingly narrow: one setting, one natural variable, and an unmodified model.
+
+\paragraph{Lenses.} The logit lens reads intermediate layers through the final unembedding \citep{nostalgebraist2020logitlens}. The tuned lens fits a per-layer map \citep{belrose2023eliciting}.
+
+\section{Setting}
+
+\paragraph{Task and models.}
+\begin{itemize}
+\item \textbf{Models.} Qwen3-1.7B (28 blocks, thinking off) and SmolLM2-1.7B-Instruct (24 blocks), run in bf16 with greedy decoding on one 8\,GB laptop GPU. Both tokenisers split numbers into single digits.
+\item \textbf{Prompt.} ``What is $a$ * $b$?'', with the assistant turn prefilled to ``$a$ * $b$ = ''.
+\item \textbf{Items.} The 240 two-digit multiplication items (``M items'') of \citet{ramdan2026crv2}, and every $a \times b$ with $11 \le a, b \le 99$ and a four-digit product (6,610 generated prompts). Qwen3-1.7B answers 89.7\% of the generated items correctly; SmolLM2 answers 42.7\%.
+\end{itemize}
+
+\paragraph{Settling depth.} For each answer digit, the settle layer is the smallest layer from which the logit lens's top-1 prediction, at the position that predicts that digit, equals the final output at every later layer. $D$ is the mean settle layer over digits divided by $L$. $D_\text{gen}$ uses digits 2 onward, which are read at generated positions. The smallest effect of interest (SESOI) is one layer ($1/L$).
+
+\paragraph{Definitions.}
+\begin{itemize}
+\item \textbf{Oracle direction.} The mean hidden state of the top tercile of a target minus that of its bottom tercile, fitted on separate items.
+\item \textbf{Calibration gap.} The projection gap that \citet{ramdan2026battery} used as the unit of push strength.
+\item \textbf{Survival.} The change in a write's projection at a later block, relative to the written amount.
+\item \textbf{Arm S} pairs each recipient with same-product donors: \emph{far} donors whose depth differs by at least one layer, and \emph{null} donors with the same depth. \textbf{Arm S2} keeps only donors whose answer tokens are identical to the recipient's. In Qwen3-1.7B there are 127 S2 recipients on 381 items, with a mean in-batch far gap of 1.15 layers ($D$); in SmolLM2, 150 recipients on 359 items.
+\item \textbf{Cell notation.} ``(iv)@21'' means that positions (iv) are patched at the output of block 21.
+\item \textbf{Transfer} $\tau$ is the far-minus-null effect, signed toward the donor, divided by the same contrast between the clean donors. For reports we write $\tau_\text{rep}$. CIs come from a two-way item bootstrap.
+\item \textbf{Copy-free} $D_\text{gen}^{>l}$ recomputes settle layers allowing only blocks above $l$ to lower them.
+\item \textbf{Kill check.} A preregistered test of whether the transfer survives a tuned lens.
+\item \textbf{Self-report arms 1 and 2.} Arm~1 asks ``step by step, or just knew?''. Arm~2 asks ``which digit were you least sure of?''.
+\end{itemize}
+
+\paragraph{Positions.} The 30-token prompt has these regions:
+\begin{itemize}
+\item (i) the question tokens (3--12);
+\item (ii-r) the reading position (17), the newline after ``assistant'', which is paper~6's read site;
+\item (ii) the reading position through the prefill (17--29), which includes the empty thinking block and the prefilled operands;
+\item (iii) all prompt positions;
+\item (iv) the generated answer positions (30 onward);
+\item (iii$+$) prompt plus answer positions.
+\end{itemize}
+Each patched row's output at the chosen positions is replaced by its donor's, which runs in the same batch, so the copy is exact.
+
+\paragraph{A caveat on circularity.} $D_\text{gen}$ is read at the same answer positions that (iv) overwrites. In the 381 S2 items, 99\% of the settle layers of digits 2--4 lie above block 21 (none below 20). So (iv)@21 cannot show that depth is \emph{computed} at the answer positions. It shows only that blocks 22--28 there carry the block-21 residual forward and are not reset by attention to the recipient's prompt. The copy-free measure changes almost nothing at block 21 (0.905 against 0.905), so it cannot detect this.
+
+\section{Results}
+
+\subsection{Pilot (preregistered verdict \verdict{UNINFORMATIVE}; everything below is exploratory)}
+
+The pilot is reported in \texttt{study/RESULTS\_PILOT.md}. Its positive control (flips to a user's wrong option under pushes from the reading position onward) missed its two-adjacent-strengths rule by 0.003. Under the frozen rules, nothing is concluded about settling depth. Fresh oracle directions read settling depth at blocks 14, 21 and 24 ($\rho = 0.47$ to $0.54$). They were pushed at 1, 2 and 4 calibration gaps under three conditions, against Gaussian pushes matched in KL:
+\begin{itemize}
+\item \textbf{(a) from the reading position onward,} including generated positions;
+\item \textbf{(b) at every position from index 1,} including generated positions;
+\item \textbf{(c) at the question tokens only.}
+\end{itemize}
+
+Results:
+\begin{itemize}
+\item \textbf{(c)} moved depth in 0 of 36 cells, with $|\text{effect}| \le 0.006$ of depth.
+\item \textbf{(a) and (b)} moved it only at block 14, in the wrong direction, toward later settling. The controllable cells were (a) at 4 gaps ($+0.049$ $[0.026, 0.074]$), and (b) at 2 gaps ($+0.040$ $[0.016, 0.065]$) and 4 gaps ($+0.045$ $[0.033, 0.058]$). By the preregistered dose rule, (b) ``moves'' depth. A secondary reading, declared after an interim look, counts a position effect only if (c) moves, which it did not.
+\item \textbf{Block 21.} Nothing reached the SESOI there. An oracle component written at the answer positions persisted (survival 0.996 against 1.009 for random writes) and was not used.
+\item \textbf{The answer choice} (post hoc, after the interim looks). Source-only pushes of an oracle fitted at the question tokens moved the answer choice in the flip task: $+0.29$ $[0.22, 0.38]$ at 2 gaps, block 12.
+\end{itemize}
+
+\subsection{Where the settling profile is carried}
+
+\paragraph{Patching arm 1 (prompt positions only).} Its preregistered verdict was \verdict{INVALID}; it is reported in \texttt{study/patch/RESULTS\_PATCH.md}.
+\begin{itemize}
+\item \textbf{Ceiling.} With donors that have \emph{different} answers (arm P, measure $D$), all prompt positions transferred only $\tau = 0.95$, $0.66$ and $0.16$ at blocks 7, 14 and 21.
+\item \textbf{Post hoc diagnosis.} The missing part of the gap sits in digits 2--4, which are read at generated positions.
+\item \textbf{Question tokens.} They carried answer content: patching them at block 7 raised the donor answer's log-odds by $+5.3$ nats $[4.7, 6.0]$. They did not carry depth ($\tau \approx 0$).
+\item \textbf{Reading position.} Swapping its whole state changed depth by at most 0.0006 and the answer log-odds by at most 0.01 nats, at every block.
+\end{itemize}
+
+\paragraph{Patching arm 2 (S2, answer positions added).} See Table~\ref{tab:s2}.
+\begin{itemize}
+\item \textbf{Ceiling.} (iii$+$) reaches $\tau = 1.00$ at blocks 7--21. At block 24 it reaches 0.81, the limit set by the lens.
+\item \textbf{Answer positions alone (iv).} They transfer 0.17 at block 14 (preregistered label \verdict{NOT HELD}) and \textbf{0.91} $[0.81, 1.04]$ at block 21 (\verdict{HELD}). The answer is unchanged in 98\% of rows, and digit~1 in all rows.
+\item \textbf{Region (ii)}, from the reading position through the prefill, carries part of the gap: 0.56 at block 7 and 0.39 at block 14. Both are below the SESOI, with preregistered class ``no meaningful move'' or ``inconclusive''. Only all prompt positions together reach the ``moves'' class, at block 7 (0.88).
+\end{itemize}
+The settling profile is thus carried by the prompt at early and middle blocks. At block 21 it is carried forward by the answer positions themselves. That second statement is subject to the circularity caveat above.
+
+\begin{table}[t]
+\centering\small
+\caption{Transfer of the later-digit logit-lens settling profile ($\tau$ on $D_\text{gen}$, 95\% CI) by patched positions and block, with the answer held fixed (arm S2). The labels are the preregistered classes of S2's rule.}
+\label{tab:s2}
+\setlength{\tabcolsep}{4pt}\footnotesize
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Positions & Qwen3-1.7B (block) & SmolLM2-1.7B (block) \\
+\midrule
+(i) question tokens & $\le 0.11$ & $\le 0.10$ \\
+(ii) reading position $\to$ prefill & 0.56 (7), 0.39 (14) & 0.58 (6), 0.50 (12) \\
+(iii) all prompt & 0.88 (7), 0.59 (14), 0.05 (21) & 0.92 (6), 0.73 (12), 0.06 (18) \\
+(iv) answer positions & 0.17 (14); \textbf{0.91} $[0.81, 1.04]$ (21) & 0.04 (12); \textbf{0.79} $[0.70, 0.92]$ (18); 0.72 (21) \\
+(iii$+$) prompt $+$ answer & 1.00 (7--21); 0.81 (24) & 0.99 (6--18); 0.76 (21) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Self-reports in Qwen3-1.7B follow prompt-side swaps, not the patched answer-position state}
+
+After the answer we appended a question turn and teacher-forced every row to the shared answer.
+\begin{itemize}
+\item \textbf{Readout.} The report is the next-token letter after ``The answer is (''. Both label orders were run (arm~1), or all four option rotations (arm~2), to remove letter bias.
+\item \textbf{Temporal isolation.} Under (iv)@21 the report turn is never patched. Its positions are bit-identical to the clean run through block 21 and read the patched answer states only through attention from block 22 on.
+\item \textbf{Arm 2's design corrections.} Arm~2's primary per-digit question, its direct-steering control, its input-only and answer-only baselines and its matched-KL Gaussian control came from an assessment of the design by ChatGPT (OpenAI), supplied by the author. The coordinating Claude Opus 5.5 session turned it into concrete design changes, together with its own corrections. They arrived after arm~1 was frozen, so arm~2 was preregistered separately before its data existed.
+\end{itemize}
+
+\begin{table}[t]
+\centering\small
+\caption{Transfer of the self-report toward the donor's ($\tau_\text{rep}$, 95\% CI; Qwen3-1.7B, 127 recipients). Depth $\tau$ comes from the same rows. Bold marks cells that ``move'' the report by the preregistered rule (CI excludes 0 and $|\tau_\text{rep}| \ge 0.2$).}
+\label{tab:sr}
+\setlength{\tabcolsep}{3pt}\footnotesize
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Cell & What is swapped & Depth $\tau$ & Arm 1: ``step by step?'' & Arm 2: ``least sure digit?'' \\
+\midrule
+(iv)@21 & answer-position whole state & 0.90 & $0.00$ $[-0.06, 0.04]$ & $0.00$ $[-0.03, 0.04]$ \\
+\quad matched-KL corrected & & & $-0.01$ & $0.01$ \\
+(iv$+$report)@21 & answer positions and report turn & 0.90 & \textbf{0.98} & \textbf{0.99} $[0.95, 1.03]$ \\
+(i)@7 & question tokens & 0.10 & \textbf{0.70} $[0.41, 1.31]$ & $0.20$ $[0.00, 0.37]$ (below rule) \\
+(ii)@7 & reading position $\to$ prefill & 0.57 & $-0.04$ $[-0.75, 0.25]$ & \textbf{0.66} $[0.48, 0.88]$ \\
+(ii-r)@21 & reading position & 0.00 & 0.00 & $-0.01$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Both preregistered verdicts are \verdict{RECONSTRUCTION FROM INPUT} (Table~\ref{tab:sr}).
+\begin{itemize}
+\item \textbf{The patched answer-position state is not followed.} It transfers 0.90 of the settling profile but none of either report.
+\item \textbf{Each report moves under one prompt-side swap.} The arm-1 report moves under the question-token swap (0.70) but not under the prefill-region swap ($-0.04$). The arm-2 report moves under the prefill-region swap (0.66), which also moves depth (0.57). It does not move under the question-token swap, whose $\tau_\text{rep} = 0.20$ falls just below the rule.
+\item \textbf{Weaker than input reconstruction predicts.} An input-only ridge predictor from operand and answer digits explains 0.65 $[0.48, 0.91]$ of the clean donor--recipient arm-2 gap. Against that predictor, the question-token swap moved the report \emph{less} than input reconstruction predicts: effect minus predicted $-0.080$ $[-0.134, -0.036]$.
+\item \textbf{The direct-steering control} overwrites the readout position's own block-21 state, so a complete transfer there is close to guaranteed. It rules out a readout that cannot be moved at all, but says nothing about the attention pathway from the answer positions.
+\item \textbf{Arm 1's readout is near ceiling.} The model almost always says ``step by step'' (mean $r = $ 10.7 nats), and the clean report is unrelated to depth ($\rho(r, D) = -0.01$ $[-0.19, 0.17]$). Its null under (iv)@21 therefore says little on its own.
+\item \textbf{Arm 2's report} (post hoc description). It averages 1.22 of 2 bits of entropy after rotation correction, although its argmax is ``the third digit'' for 122 of 127 recipients. Its preregistered evaluability criterion is met (clean gap $+0.177$ $[0.107, 0.263]$ layers). It names a latest-settling digit in 13\% of items, against 39\% by chance, and its weighted score is negative ($-0.33$ $[-0.37, -0.29]$). So it systematically \emph{anti}-tracks the model's own settling.
+\end{itemize}
+In short, no report followed the state that the input does not determine. Its item-to-item variation was largely, but not entirely, predictable from the input.
+
+\subsection{How much of the settling profile is the lens?}
+
+\paragraph{Kill check.} A tuned lens, an affine map fitted on held-out text, was compared with the logit lens.
+\begin{itemize}
+\item \textbf{Primary statistic.} The preregistered tuned-lens $\tau_\text{gen}$ of (iv)@21 is 1.83 $[-6.75, 11.11]$. That is a PASS under the frozen rule (point estimate $\ge 0.2$), but it is unstable, because the tuned-lens far--null gap shrinks from 1.38 to 0.17 layers, with a CI that includes 0.
+\item \textbf{Earlier settling.} Under the tuned lens, digits settle much earlier (mean layer 16.1 against 24.9, before the patch layer), and the two lenses agree on items only at $\rho = 0.20$.
+\item \textbf{Secondary statistic.} The copy-free tuned-lens transfer is 1.06 $[0.36, 2.44]$.
+\end{itemize}
+
+\paragraph{Lens arm.} It compared three measures on 840 items: the logit lens, the tuned lens and a lens-free \emph{causal arrival layer}. The arrival layer is the earliest block from which the clean residual at a digit's predicting position, copied into a teacher-forced run of a different problem, makes the clean digit the output at every later block (Table~\ref{tab:lens}).
+\begin{itemize}
+\item \textbf{Reliability.} All three measures repeat across a paraphrase of the user turn, which keeps the prefill ($\rho = 0.88$, $0.97$, $0.89$).
+\item \textbf{Agreement with arrival.} Logit-lens settling correlates with arrival at only $\rho = 0.26$ $[0.20, 0.32]$ (0.19 $[0.09, 0.29]$ on the S2 items), and the tuned lens at 0.32 (0.03 $[-0.07, 0.13]$ on the S2 items).
+\item \textbf{Spread.} Logit-lens settling varies little across items (SD 0.56 layers, below the SESOI).
+\item \textbf{Verdict.} \verdict{MIXED} by the preregistered rule.
+\item \textbf{The S2 grouping} separates items by 1.12 layers under the logit lens and is not detectably different from zero under arrival (0.18 $[-0.60, 0.83]$ layers).
+\item \textbf{SmolLM2.} $\rho = 0.40$, and its grouping does differ in arrival, though below the SESOI (0.65 $[0.13, 1.28]$ layers; the 50\% arrival variant gives 0.05 $[-0.93, 1.14]$).
+\end{itemize}
+
+\begin{table}[t]
+\centering\small
+\caption{Settling depth against a lens-free causal arrival layer (Spearman $\rho$ across items, 95\% CI).}
+\label{tab:lens}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+ & Qwen3-1.7B (840 items) & SmolLM2-1.7B (822 items) \\
+\midrule
+logit lens vs arrival & 0.26 $[0.20, 0.32]$ & 0.40 $[0.34, 0.46]$ \\
+\quad S2 items only & 0.19 $[0.09, 0.29]$ & 0.35 \\
+tuned lens vs arrival & 0.32 $[0.26, 0.38]$ & 0.41 $[0.34, 0.46]$ \\
+reliability across paraphrase (logit / tuned / arrival) & 0.88 / 0.97 / 0.89 & 0.92 / 0.98 / 0.93 \\
+S2 far--null gap, logit lens (layers) & 1.12 $[1.05, 1.19]$ & 1.08 $[1.02, 1.17]$ \\
+S2 far--null gap, arrival (layers) & 0.18 $[-0.60, 0.83]$ & 0.65 $[0.13, 1.28]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Is the readable variable an input correlate? (preregistered verdict \verdict{UNDERPOWERED})}
+
+If the variable read at the prompt were a property of the input rather than of the run, a probe should follow it across items but not across contexts that keep the operands and the answer. We tested 149 items under up to seven answer-preserving context variants: a few-shot prefix, filler, a format change, an irrelevant sum, a system prompt and a paraphrase. The target was the causal commitment layer, measured against fixed corrupt runs with norm rescaling.
+\begin{itemize}
+\item \textbf{Why underpowered.} Within-item differences of the target were not reliable across two corrupt references (split-half $r = 0.17$, against the required 0.5), so the within-item probe test cannot be interpreted.
+\item \textbf{Descriptive results} (not part of the verdict):
+  \begin{itemize}
+  \item the point-estimate shift of each variant from the base context is at most 0.16 layers (the upper CI bound reaches 0.26);
+  \item 92\% of the target's variance lies between operand pairs;
+  \item the target's between-item reliability is itself only $r = 0.49$;
+  \item because the corrupt reference is chosen from the answer digits, part of that between-item variance reflects the choice.
+  \end{itemize}
+\item \textbf{Secondary readouts.}
+  \begin{itemize}
+  \item Between items, the oracle at the reading position did not read the arrival target (held-out AUC 0.51).
+  \item With logit-lens settling as the target, the last prompt token at block 14 read it best (AUC 0.69, $\rho = 0.41$), better than the reading position (AUC up to 0.66).
+  \end{itemize}
+\end{itemize}
+
+\subsection{Second model}
+
+SmolLM2-1.7B-Instruct passed the preregistered screen (150 recipients). It replaced the planned models, which were not cached locally. The author preferred the cached model to a download, and the coordinating Claude session made the substitution; OLMo-2's tokenizer also groups digits. Each arm's frozen code was run with only the model key and the layers changed, mapped by relative depth (21~$\to$~18, 7~$\to$~6).
+\begin{itemize}
+\item \textbf{Location replicates} (Table~\ref{tab:s2}): \verdict{NOT HELD} at block 12, \verdict{HELD} at block 18. At block 21 it is \verdict{PARTIAL} ($\tau = 0.72$).
+\item \textbf{Kill check.} It passes and is more robust than in Qwen3-1.7B: tuned-lens gap 0.55 layers, copy-free $\tau$ 0.79 $[0.45, 1.15]$.
+\item \textbf{Self-report does not replicate} (\verdict{NOT EVALUABLE} against Qwen3-1.7B's \verdict{RECONSTRUCTION FROM INPUT}). By the preregistered criterion, the clean reports do not follow the donor--recipient settling difference: the gap is $+0.004$ $[-0.005, 0.016]$ layers. The report is nearly item-invariant: ``the fourth digit'' for 133 of 150 recipients, and even the direct-steering control barely moves it.
+\end{itemize}
+
+\section{Discussion}
+
+\paragraph{Why pushes fail where interchange succeeds.} The pilot's pushes from the reading position onward reached the answer positions at blocks 21 and 24, and the written oracle component persisted there, yet depth did not move. Swapping the whole state at those positions moves it. So the gap is between a direction and a whole state at the site that carries the variable, and not only between read sites and holding sites. Paper~6's read site is itself causally inert for the settling profile.
+
+\paragraph{What the reports read, in Qwen3-1.7B.} Under an interchange that moves the logit-lens settling profile while the answer stays fixed, neither report follows the patched answer-position state. Each moves under one of two prompt-side swaps that carry donor operands. This parallels injection results \citep{ferrara2026owmi,hatua2026verbalization} and the privileged-access criterion \citep{song2025privileged,aoki2026neurofeedback}, for an on-distribution variable, but in one model and with two forced-letter readouts. The second model's reports were not evaluable.
+
+\paragraph{What the manipulated variable is.} The manipulated quantity is a logit-lens settling profile. In Qwen3-1.7B it relates only weakly to a lens-free arrival layer, and the early--late grouping is not shown to differ in arrival. A causally defined variable may behave differently, both in where it is carried and in whether it is reported. That is the natural next test. The same caveat applies to the settling-depth results of \citet{ramdan2026crv2} and \citet{ramdan2026battery}.
+
+\paragraph{Limitations.}
+\begin{itemize}
+\item Two small models and one task.
+\item Whole-state interchange moves everything at a site, not one variable.
+\item The block-21 result is partly circular (Section~3).
+\item The reports are single forced letters. Arm~1's is near ceiling.
+\item The self-report result rests on one model.
+\item The input-proxy test was underpowered.
+\item The settling profile is lens-dependent.
+\item The pilot and the first patching arm received non-confirmatory verdicts, and their findings are reported as exploratory.
+\end{itemize}
+
+\section{Preregistration, deviations and reproducibility}
+
+\paragraph{Freezes and deviations.} Each arm has a frozen \texttt{PREDICTIONS.md} with SHA-256 hashes of itself, its code, its item lists and its fitted lenses, recorded before its data existed. Each arm's \texttt{DEVIATIONS.md} logs:
+\begin{itemize}
+\item the move from a desktop GPU to a laptop;
+\item a selftest fix;
+\item two disclosed interim looks in the pilot;
+\item the second-model substitution;
+\item corrections to results text, which changed no verdict.
+\end{itemize}
+
+\paragraph{Released files.}
+\begin{itemize}
+\item \textbf{Repository:} code, frozen predictions, deviation logs and summaries, at \url{https://github.com/Somebodyhere101/settling-profile-interchange}.
+\item \textbf{Zenodo:} per-item results, in \texttt{results-per-item.zip}, linked from the repository README.
+\item \textbf{Result content.} The result files hold only ids and numbers. A filter for strings over 40 characters found none to remove.
+\item \textbf{Withheld:} data files from repositories without a licence (\texttt{items.json}, \texttt{calibration.json}), the ARC items (CC BY-SA 4.0; \citealp{clark2018arc}; rebuildable), the fitted tuned lenses, the hidden-state arrays, a deployment script and AI planning notes. Their hash lines cannot be verified from the release.
+\item \textbf{Hash mismatch.} The pilot's \texttt{run8.py} differs from its freeze hash under a logged selftest fix, and it matches the logged new hash.
+\end{itemize}
+
+\section*{AI use and author contribution}
+
+This study was carried out by an AI system. Claude (Anthropic): Claude Opus 5.5 (\texttt{claude-opus-5-5}) for every session, including the audit and reviewer sessions. It ran as Claude Code agent sessions on the author's computer. It did the following:
+\begin{itemize}
+\item chose the design of every arm and wrote each preregistration (the frozen \texttt{PREDICTIONS.md} files record that the design choices were delegated to it);
+\item wrote all the code;
+\item ran every experiment on the author's hardware;
+\item analysed the results;
+\item searched for and checked the cited literature;
+\item wrote this manuscript and the repository documentation.
+\end{itemize}
+One Claude session coordinated the others and passed on the author's requests. In the frozen files it is called ``the parent session''.
+
+\paragraph{Corrections to attributions in frozen files.} Some frozen files credit the author with decisions that the coordinating Claude session made. The files are not edited, and dated corrections are in each arm's \texttt{DEVIATIONS.md}. The corrected attributions are:
+\begin{itemize}
+\item \textbf{Lens and input-proxy arms.} Two frozen preregistrations describe their decision rules as ``the author's, as relayed''. Those rules, and those arms, were written by the coordinating session; the author's only instruction at the time was to continue the paper.
+\item \textbf{Second model.} The author preferred a cached model to a download, but the coordinating session made the substitution and wrote the second-model screen's gate.
+\item \textbf{Self-report arms.} The self-report arm's design and decision rules were specified by the coordinating session; the author approved going ahead.
+\end{itemize}
+
+The author set the goal of a fundamental result and directed the study through open-ended questions; the study's question was proposed by the AI system in reply. Its self-report arms build on the author's earlier hypothesis linking effort to a system's ability to report its own states. The author approved each stage of the work, including running it on a laptop when the desktop computer was unavailable, passed on an external assessment of the design written by ChatGPT, preferred an already-installed model to a download, provided the computing hardware, and decided to release the study. All design choices were delegated to the AI system; decision rules that two preregistrations first attributed to the author were written by the AI system, as recorded in the deviation logs. The author did not independently check the code, analyses or technical claims.
+
+
+\paragraph{How the work was checked.} The work was checked by automated adversarial audits. These were Claude sessions acting as independent reviewers, which compared the manuscript with the released data and code. Their findings and the resulting corrections are listed in \texttt{V2\_CHANGES.md}. All code, frozen preregistrations, deviation logs and per-item results are public so that others can check them.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

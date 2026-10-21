@@ -1,0 +1,18 @@
+{
+ "_note": "Paper 8 pilot settings, fixed in PREDICTIONS.md. ell and G are paper 6's published layer (block output) and calibration gap for the model; source in _src.",
+ "k": [1, 2, 4],
+ "R": 12,
+ "c": [0.25, 0.5, 1, 2, 3, 4, 6, 8, 12, 16, 24],
+ "max_rows": 128,
+ "persist_offset": 3,
+ "models": {
+  "q3-1.7b": {
+   "settle": {"ell": 21, "G": 221.75133472997663, "_src": "paper6/code/res/d3/q3-1.7b_pilot_summary.json (CR axis, D3 pilot)"},
+   "flip": {"ell": 19, "G": 161.64673453596606, "_src": "paper6/code/res/d8/q3-1.7b_pilot_summary.json (persona vector, D8 pilot)"}
+  },
+  "q25-7b": {
+   "settle": {"ell": 14, "G": 18.74927202563007, "_src": "paper6/code/res/d3/q25-7b_main_summary.json"},
+   "flip": {"ell": 19, "G": 23.579632724496552, "_src": "paper6/code/res/d8/q25-7b_main_summary.json"}
+  }
+ }
+}

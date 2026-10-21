@@ -1,0 +1,45 @@
+{
+ "maxlen": 40,
+ "drop_keys": [
+  "answer_text",
+  "completion",
+  "options",
+  "prompt",
+  "question",
+  "text",
+  "texts"
+ ],
+ "exempt_keys": [
+  "answer_only_predictor",
+  "label",
+  "label_verdict",
+  "variants",
+  "verdict"
+ ],
+ "counts": {},
+ "withheld": [
+  "DEEPER.md",
+  "code\\data\\calibration.json",
+  "code\\data\\items.json",
+  "code\\data\\items_d8.json",
+  "code\\res\\flip_interim_clean_h.npz",
+  "code\\res\\flip_interim_dirs.npz",
+  "code\\res\\flip_q3-1.7b_clean_h.npz",
+  "code\\res\\flip_q3-1.7b_dirs.npz",
+  "code\\res\\flip_q3-1.7b_smoke_clean_h.npz",
+  "code\\res\\flip_q3-1.7b_smoke_dirs.npz",
+  "code\\res\\settle_interim_clean_h.npz",
+  "code\\res\\settle_interim_dirs.npz",
+  "code\\res\\settle_q3-1.7b_clean_h.npz",
+  "code\\res\\settle_q3-1.7b_dirs.npz",
+  "code\\res\\settle_q3-1.7b_smoke_clean_h.npz",
+  "code\\res\\settle_q3-1.7b_smoke_dirs.npz",
+  "inputproxy\\res\\ip_h.npz",
+  "model2\\code\\data\\calibration.json",
+  "model2\\code\\data\\items.json",
+  "model2\\code\\data\\items_d8.json",
+  "model2\\selfreport\\res\\tuned_lens.pt",
+  "p8.ps1",
+  "selfreport\\res\\tuned_lens.pt"
+ ]
+}
