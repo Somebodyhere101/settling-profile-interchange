@@ -6,7 +6,16 @@ authors:
     given-names: Sam
 license: MIT
 repository-code: "https://github.com/Somebodyhere101/settling-profile-interchange"
-# The Zenodo DOI, version and release date will be added on release.
+doi: "10.5281/zenodo.23532061"
+version: "v1"
+date-released: "2026-10-21"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.23532061"
+    description: "This version (v1) on Zenodo: the paper, its source and the per-item results"
+  - type: doi
+    value: "10.5281/zenodo.23532060"
+    description: "All versions on Zenodo"
 preferred-citation:
   type: article
   title: "Where a Logit-Lens Settling Profile Is Carried, and Whether Qwen3-1.7B Reports It: Answer-Fixed Interchange in Two Small Language Models"
@@ -17,6 +26,7 @@ preferred-citation:
   month: 10
   publisher:
     name: Zenodo
+  doi: "10.5281/zenodo.23532061"
 references:
   - type: article
     title: "Does the Direction Track the Process? A Preregistered Validity Battery for Published Hidden-State Directions"

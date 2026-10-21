@@ -2,8 +2,8 @@
 
 This repository holds the code, preregistrations and results for **"Where a Logit-Lens Settling Profile Is Carried, and Whether Qwen3-1.7B Reports It: Answer-Fixed Interchange in Two Small Language Models"** (Sam Ramdan, October 2026). It is paper 8 in a series on whether hidden-state directions track the processes they are named after.
 
-- **Paper:** [`paper/settling-profile-interchange.pdf`](paper/settling-profile-interchange.pdf). The source, the numbers check (`check_numbers.py`) and the abstract check are in `paper/source/`.
-- **Repository:** <https://github.com/Somebodyhere101/settling-profile-interchange>. **Zenodo:** the DOI will be added here on release. The Zenodo record will hold `results-per-item.zip`, which is kept out of git because of its size.
+- **Paper:** [`paper/settling-profile-interchange.pdf`](paper/settling-profile-interchange.pdf); Zenodo: [doi:10.5281/zenodo.23532061](https://doi.org/10.5281/zenodo.23532061) (this version), [doi:10.5281/zenodo.23532060](https://doi.org/10.5281/zenodo.23532060) (all versions). The source, the numbers check (`check_numbers.py`) and the abstract check are in `paper/source/`.
+- **Repository:** <https://github.com/Somebodyhere101/settling-profile-interchange>. **Zenodo:** [doi:10.5281/zenodo.23532061](https://doi.org/10.5281/zenodo.23532061). The Zenodo record holds `results-per-item.zip`, which is kept out of git because of its size.
 - **Earlier in the series:** [Does the Direction Track the Process? (paper 6)](https://doi.org/10.5281/zenodo.23450400).
 - **Changes from the audited draft:** see `V2_CHANGES.md`.
 
